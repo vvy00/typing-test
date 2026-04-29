@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,6 +11,10 @@
   <div class="header">
     <h1>Random Fun Facts Typing Test<span class="dot">.</span></h1>
     <p>Type the fact: both as fast as you can, as correctly as you can.</p>
+    <div class="header-controls">
+      <button class="ctrl-btn" id="theme-btn" title="Toggle light/dark mode">&#9788;</button>
+      <button class="ctrl-btn" id="focus-btn" title="Focus mode">&#9654;&#9654;</button>
+    </div>
   </div>
 
   <div class="level-row">
@@ -96,9 +100,36 @@
     <div class="result-desc"  id="result-desc"></div>
   </div>
 
-  <div class="leaderboard">
+  <div class="leaderboard" id="leaderboard">
     <div class="lb-title">Best runs this session</div>
     <div id="lb-body"><div class="lb-empty">No runs yet. Finish a fun fact to see your scores!</div></div>
+  </div>
+</div>
+
+<!-- Focus mode overlay -->
+<div class="focus-overlay" id="focus-overlay">
+  <div class="focus-box">
+    <div class="focus-header">
+      <span class="focus-cat" id="focus-cat"></span>
+      <div class="focus-stats">
+        <span id="focus-wpm">—<span class="stat-unit">wpm</span></span>
+        <span id="focus-acc">—<span class="stat-unit">%</span></span>
+        <span id="focus-time">0<span class="stat-unit">s</span></span>
+      </div>
+      <button class="ctrl-btn focus-exit" id="focus-exit" title="Exit focus mode">&#x2715;</button>
+    </div>
+    <div class="focus-progress-bg"><div class="focus-progress-fill" id="focus-progress"></div></div>
+    <div class="fact-text focus-text" id="focus-display"></div>
+    <textarea id="focus-input" placeholder="Start typing..." spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+    <div class="focus-actions">
+      <button class="primary" id="focus-next">Next fact →</button>
+      <button id="focus-retry">Retry</button>
+      <button class="pause-btn" id="focus-pause" disabled>&#9646;&#9646;</button>
+    </div>
+    <div class="result-banner" id="focus-result">
+      <div class="result-title" id="focus-result-title"></div>
+      <div class="result-desc" id="focus-result-desc"></div>
+    </div>
   </div>
 </div>
 

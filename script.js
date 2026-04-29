@@ -35,34 +35,43 @@ const allFacts = {
   ],
 };
 
-
+/* ── state ── */
 let currentLevel = 'easy';
 let queues = { easy: shuffle(allFacts.easy), medium: shuffle(allFacts.medium), hard: shuffle(allFacts.hard) };
 let queueIndexes = { easy: 0, medium: 0, hard: 0 };
-
 let currentFact = queues.easy[0];
 let started = false, finished = false, paused = false;
 let timerInterval = null, elapsed = 0;
 let scores = [];
+let focusMode = false;
 
 function shuffle(arr) { return [...arr].sort(function() { return Math.random() - 0.5; }); }
 
-/* level switching */
+/* ── theme toggle ── */
+var themeBtn = document.getElementById('theme-btn');
+themeBtn.addEventListener('click', function() {
+  var html = document.documentElement;
+  if (html.getAttribute('data-theme') === 'dark') {
+    html.setAttribute('data-theme', 'light');
+    themeBtn.innerHTML = '&#9790;'; /* crescent moon */
+  } else {
+    html.setAttribute('data-theme', 'dark');
+    themeBtn.innerHTML = '&#9788;'; /* sun */
+  }
+});
+
+/* ── level switching ── */
 document.querySelectorAll('.level-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
-    document.querySelectorAll('.level-btn').forEach(function(b) {
-      b.className = 'level-btn';
-    });
+    document.querySelectorAll('.level-btn').forEach(function(b) { b.className = 'level-btn'; });
     btn.classList.add('active-' + btn.dataset.level);
     currentLevel = btn.dataset.level;
-    var idx = queueIndexes[currentLevel];
-    loadFact(queues[currentLevel][idx]);
+    loadFact(queues[currentLevel][queueIndexes[currentLevel]]);
   });
 });
 
-/* rendering */
-function renderFact(typed) {
-  var text = currentFact.text;
+/* ── rendering ── */
+function buildFrags(text, typed) {
   var frags = [];
   for (var i = 0; i < text.length; i++) {
     var ch = text[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -74,9 +83,20 @@ function renderFact(typed) {
       frags.push('<span class="pending">' + ch + '</span>');
     }
   }
-  document.getElementById('fact-display').innerHTML = frags.join('');
+  return frags.join('');
+}
+
+function renderFact(typed) {
+  var html = buildFrags(currentFact.text, typed);
+  document.getElementById('fact-display').innerHTML = html;
   document.getElementById('fact-cat').textContent = currentFact.cat;
-  document.getElementById('progress').style.width = Math.min(100, Math.round((typed.length / text.length) * 100)) + '%';
+  var pct = Math.min(100, Math.round((typed.length / currentFact.text.length) * 100));
+  document.getElementById('progress').style.width = pct + '%';
+  if (focusMode) {
+    document.getElementById('focus-display').innerHTML = html;
+    document.getElementById('focus-cat').textContent = currentFact.cat;
+    document.getElementById('focus-progress').style.width = pct + '%';
+  }
 }
 
 function setDiffBadge(level) {
@@ -85,7 +105,7 @@ function setDiffBadge(level) {
   badge.className = 'diff-badge ' + level;
 }
 
-/* stats */
+/* ── stats ── */
 function calcStats(typed) {
   var text = currentFact.text;
   var correct = 0;
@@ -99,41 +119,53 @@ function calcStats(typed) {
 
 function updateStats(typed) {
   var s = calcStats(typed);
-  document.getElementById('wpm-val').innerHTML = (started && elapsed > 0 ? s.wpm : '—') + '<span class="stat-unit">wpm</span>';
-  document.getElementById('acc-val').innerHTML = (typed.length > 0 ? s.acc : '—') + '<span class="stat-unit">%</span>';
+  var wpmHtml = (started && elapsed > 0 ? s.wpm : '—') + '<span class="stat-unit">wpm</span>';
+  var accHtml = (typed.length > 0 ? s.acc : '—') + '<span class="stat-unit">%</span>';
+  document.getElementById('wpm-val').innerHTML = wpmHtml;
+  document.getElementById('acc-val').innerHTML = accHtml;
+  if (focusMode) {
+    document.getElementById('focus-wpm').innerHTML = (started && elapsed > 0 ? s.wpm : '—') + '<span class="stat-unit">wpm</span>';
+    document.getElementById('focus-acc').innerHTML = (typed.length > 0 ? s.acc : '—') + '<span class="stat-unit">%</span>';
+  }
 }
 
-/* timer */
+/* ── timer ── */
 function startTimer() {
   var startTime = Date.now() - (elapsed * 1000);
   timerInterval = setInterval(function() {
     elapsed = (Date.now() - startTime) / 1000;
-    document.getElementById('time-val').innerHTML = elapsed.toFixed(1) + '<span class="stat-unit">s</span>';
-    updateStats(document.getElementById('typing-input').value);
+    var timeHtml = elapsed.toFixed(1) + '<span class="stat-unit">s</span>';
+    document.getElementById('time-val').innerHTML = timeHtml;
+    if (focusMode) document.getElementById('focus-time').innerHTML = timeHtml;
+    updateStats(document.getElementById(focusMode ? 'focus-input' : 'typing-input').value);
   }, 100);
 }
-
 function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
 
-/* pause */
+/* ── pause ── */
 function setPaused(val) {
   paused = val;
-  var btn = document.getElementById('pause-btn');
+  var mainBtn = document.getElementById('pause-btn');
+  var focusBtn = document.getElementById('focus-pause');
   var cover = document.getElementById('pause-cover');
-  var input = document.getElementById('typing-input');
+  var input = document.getElementById(focusMode ? 'focus-input' : 'typing-input');
   var timeStat = document.getElementById('time-stat');
 
   if (paused) {
     stopTimer();
-    btn.innerHTML = '&#9654;';
-    btn.classList.add('is-paused');
-    cover.classList.add('visible');
+    mainBtn.innerHTML = '&#9654;';
+    focusBtn.innerHTML = '&#9654;';
+    mainBtn.classList.add('is-paused');
+    focusBtn.classList.add('is-paused');
+    if (!focusMode) cover.classList.add('visible');
     timeStat.classList.add('paused');
     input.disabled = true;
   } else {
     startTimer();
-    btn.innerHTML = '&#9646;&#9646;';
-    btn.classList.remove('is-paused');
+    mainBtn.innerHTML = '&#9646;&#9646;';
+    focusBtn.innerHTML = '&#9646;&#9646;';
+    mainBtn.classList.remove('is-paused');
+    focusBtn.classList.remove('is-paused');
     cover.classList.remove('visible');
     timeStat.classList.remove('paused');
     input.disabled = false;
@@ -145,8 +177,12 @@ document.getElementById('pause-btn').addEventListener('click', function() {
   if (!started || finished) return;
   setPaused(!paused);
 });
+document.getElementById('focus-pause').addEventListener('click', function() {
+  if (!started || finished) return;
+  setPaused(!paused);
+});
 
-/* finish */
+/* ── result ── */
 function showResult(typed) {
   var s = calcStats(typed);
   scores.push({ wpm: s.wpm, acc: s.acc, fact: currentFact.text, level: currentLevel });
@@ -155,22 +191,29 @@ function showResult(typed) {
 
   var reactions = [
     [120, "Are your fingers even real?",  s.wpm + " wpm - you must part robot or full bot. Deeply suspicious of you."],
-    [90,  "Absolutely blazing.",           s.wpm + " wpm, " + s.acc + "% accuracy. Your keyboard is very scared & frightened by you."],
+    [90,  "Absolutely blazing lol.",           s.wpm + " wpm, " + s.acc + "% accuracy. Your keyboard is very scared & frightened by you."],
     [60,  "Solid typing!",                 s.wpm + " wpm - comfortably above average. The fact has been typed :)."],
     [40,  "Decent effort!",                s.wpm + " wpm - you typed it, and that's what really matters deep down."],
-    [0,   "Nice and steady!",              s.wpm + " wpm - the important thing is you learned something fun like a new random fun fact."],
+    [0,   "Nice & steady!",              s.wpm + " wpm - the important thing is you learned something fun like a new random fun fact."],
   ];
   var match = reactions.find(function(r) { return s.wpm >= r[0]; });
+
   document.getElementById('result-title').textContent = match[1];
   document.getElementById('result-desc').textContent = match[2];
   document.getElementById('result-banner').classList.add('show');
   document.getElementById('hint-label').textContent = 'Press Next fact for a new fact';
+
+  if (focusMode) {
+    document.getElementById('focus-result-title').textContent = match[1];
+    document.getElementById('focus-result-desc').textContent = match[2];
+    document.getElementById('focus-result').classList.add('show');
+  }
 }
 
 function renderLeaderboard() {
   var body = document.getElementById('lb-body');
   if (scores.length === 0) {
-    body.innerHTML = '<div class="lb-empty">No runs yet. Finish a fact to see your scores!</div>';
+    body.innerHTML = '<div class="lb-empty">No runs yet. Finish a fun fact to see your scores!</div>';
     return;
   }
   body.innerHTML = scores.slice(0, 5).map(function(s, i) {
@@ -184,44 +227,59 @@ function renderLeaderboard() {
   }).join('');
 }
 
-/* load fact */
+/* ── load fact ── */
 function loadFact(fact) {
   currentFact = fact;
   started = false; finished = false; paused = false; elapsed = 0;
   stopTimer();
 
-  var input = document.getElementById('typing-input');
-  var btn = document.getElementById('pause-btn');
+  var mainInput = document.getElementById('typing-input');
+  var focusInput = document.getElementById('focus-input');
+  var mainBtn = document.getElementById('pause-btn');
+  var focusBtn = document.getElementById('focus-pause');
   var cover = document.getElementById('pause-cover');
   var timeStat = document.getElementById('time-stat');
 
-  input.value = '';
-  input.disabled = false;
-  btn.innerHTML = '&#9646;&#9646;';
-  btn.classList.remove('is-paused');
-  btn.disabled = true;
+  mainInput.value = '';
+  focusInput.value = '';
+  mainInput.disabled = false;
+  focusInput.disabled = false;
+
+  mainBtn.innerHTML = '&#9646;&#9646;';
+  focusBtn.innerHTML = '&#9646;&#9646;';
+  mainBtn.classList.remove('is-paused');
+  focusBtn.classList.remove('is-paused');
+  mainBtn.disabled = true;
+  focusBtn.disabled = true;
   cover.classList.remove('visible');
   timeStat.classList.remove('paused');
 
   document.getElementById('result-banner').classList.remove('show');
-  document.getElementById('time-val').innerHTML = '0<span class="stat-unit">s</span>';
+  document.getElementById('focus-result').classList.remove('show');
+  var zeroTime = '0<span class="stat-unit">s</span>';
+  document.getElementById('time-val').innerHTML = zeroTime;
+  document.getElementById('focus-time').innerHTML = zeroTime;
   document.getElementById('wpm-val').innerHTML = '—<span class="stat-unit">wpm</span>';
   document.getElementById('acc-val').innerHTML = '—<span class="stat-unit">%</span>';
+  document.getElementById('focus-wpm').innerHTML = '—<span class="stat-unit">wpm</span>';
+  document.getElementById('focus-acc').innerHTML = '—<span class="stat-unit">%</span>';
   document.getElementById('hint-label').textContent = '';
   document.getElementById('progress').style.width = '0%';
+  document.getElementById('focus-progress').style.width = '0%';
 
   setDiffBadge(currentLevel);
   renderFact('');
-  input.focus();
+  if (focusMode) focusInput.focus();
+  else mainInput.focus();
 }
 
-/* input handler */
-document.getElementById('typing-input').addEventListener('input', function(e) {
+/* ── shared input handler ── */
+function handleInput(typed, inputEl) {
   if (finished || paused) return;
-  var typed = e.target.value;
   if (!started && typed.length > 0) {
     started = true;
     document.getElementById('pause-btn').disabled = false;
+    document.getElementById('focus-pause').disabled = false;
     startTimer();
   }
   renderFact(typed);
@@ -230,37 +288,73 @@ document.getElementById('typing-input').addEventListener('input', function(e) {
     finished = true;
     stopTimer();
     document.getElementById('pause-btn').disabled = true;
-    document.getElementById('time-val').innerHTML = elapsed.toFixed(1) + '<span class="stat-unit">s</span>';
+    document.getElementById('focus-pause').disabled = true;
+    var timeHtml = elapsed.toFixed(1) + '<span class="stat-unit">s</span>';
+    document.getElementById('time-val').innerHTML = timeHtml;
+    if (focusMode) document.getElementById('focus-time').innerHTML = timeHtml;
     updateStats(typed);
     showResult(typed);
-    e.target.disabled = true;
+    inputEl.disabled = true;
+  }
+}
+
+document.getElementById('typing-input').addEventListener('input', function(e) {
+  handleInput(e.target.value, e.target);
+});
+document.getElementById('focus-input').addEventListener('input', function(e) {
+  handleInput(e.target.value, e.target);
+});
+
+/* ── next / retry ── */
+function nextFact() {
+  queueIndexes[currentLevel] = (queueIndexes[currentLevel] + 1) % queues[currentLevel].length;
+  loadFact(queues[currentLevel][queueIndexes[currentLevel]]);
+}
+document.getElementById('next-btn').addEventListener('click', nextFact);
+document.getElementById('focus-next').addEventListener('click', nextFact);
+document.getElementById('retry-btn').addEventListener('click', function() { loadFact(currentFact); });
+document.getElementById('focus-retry').addEventListener('click', function() { loadFact(currentFact); });
+
+/* ── focus mode ── */
+var focusBtn2 = document.getElementById('focus-btn');
+var focusOverlay = document.getElementById('focus-overlay');
+
+function openFocus() {
+  focusMode = true;
+  focusOverlay.classList.add('open');
+  focusBtn2.classList.add('active');
+  /* sync focus display with current state */
+  renderFact(document.getElementById('typing-input').value);
+  document.getElementById('focus-input').value = document.getElementById('typing-input').value;
+  document.getElementById('focus-input').focus();
+}
+function closeFocus() {
+  focusMode = false;
+  focusOverlay.classList.remove('open');
+  focusBtn2.classList.remove('active');
+  /* sync main display */
+  renderFact(document.getElementById('focus-input').value);
+  document.getElementById('typing-input').value = document.getElementById('focus-input').value;
+  document.getElementById('typing-input').focus();
+}
+
+focusBtn2.addEventListener('click', openFocus);
+document.getElementById('focus-exit').addEventListener('click', closeFocus);
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (focusMode) closeFocus();
+    else closeModal();
   }
 });
 
-document.getElementById('next-btn').addEventListener('click', function() {
-  queueIndexes[currentLevel] = (queueIndexes[currentLevel] + 1) % queues[currentLevel].length;
-  loadFact(queues[currentLevel][queueIndexes[currentLevel]]);
-});
-
-document.getElementById('retry-btn').addEventListener('click', function() {
-  loadFact(currentFact);
-});
-
-/* tips modal */
-function openModal() {
-  document.getElementById('modal-backdrop').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('modal-backdrop').classList.remove('open');
-}
+/* ── tips modal ── */
+function openModal() { document.getElementById('modal-backdrop').classList.add('open'); }
+function closeModal() { document.getElementById('modal-backdrop').classList.remove('open'); }
 document.getElementById('tips-btn').addEventListener('click', openModal);
 document.getElementById('modal-close').addEventListener('click', closeModal);
 document.getElementById('modal-backdrop').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeModal();
-});
 
-/* init */
+/* ── init ── */
 loadFact(queues.easy[0]);
