@@ -35,6 +35,7 @@ const allFacts = {
   ],
 };
 
+
 let currentLevel = 'easy';
 let queues = { easy: shuffle(allFacts.easy), medium: shuffle(allFacts.medium), hard: shuffle(allFacts.hard) };
 let queueIndexes = { easy: 0, medium: 0, hard: 0 };
@@ -124,14 +125,14 @@ function setPaused(val) {
 
   if (paused) {
     stopTimer();
-    btn.textContent = 'Resume';
+    btn.innerHTML = '&#9654;';
     btn.classList.add('is-paused');
     cover.classList.add('visible');
     timeStat.classList.add('paused');
     input.disabled = true;
   } else {
     startTimer();
-    btn.textContent = 'Pause';
+    btn.innerHTML = '&#9646;&#9646;';
     btn.classList.remove('is-paused');
     cover.classList.remove('visible');
     timeStat.classList.remove('paused');
@@ -153,23 +154,23 @@ function showResult(typed) {
   renderLeaderboard();
 
   var reactions = [
-    [120, "Are your fingers even real?",  s.wpm + " wpm - you may be part robot or may be a full bot. Deeply suspicious."],
+    [120, "Are your fingers even real?",  s.wpm + " wpm - you must part robot or full bot. Deeply suspicious of you."],
     [90,  "Absolutely blazing.",           s.wpm + " wpm, " + s.acc + "% accuracy. Your keyboard is very scared & frightened by you."],
     [60,  "Solid typing!",                 s.wpm + " wpm - comfortably above average. The fact has been typed :)."],
-    [40,  "Decent effort!",                s.wpm + " wpm - you typed it, and that's what matters :-/."],
-    [0,   "Nice and steady!",              s.wpm + " wpm - the important thing is you learned something. Yay!"],
+    [40,  "Decent effort!",                s.wpm + " wpm - you typed it, and that's what really matters deep down."],
+    [0,   "Nice and steady!",              s.wpm + " wpm - the important thing is you learned something fun like a new random fun fact."],
   ];
   var match = reactions.find(function(r) { return s.wpm >= r[0]; });
   document.getElementById('result-title').textContent = match[1];
   document.getElementById('result-desc').textContent = match[2];
   document.getElementById('result-banner').classList.add('show');
-  document.getElementById('hint-label').textContent = 'Press Next for a new fact';
+  document.getElementById('hint-label').textContent = 'Press Next fact for a new fact';
 }
 
 function renderLeaderboard() {
   var body = document.getElementById('lb-body');
   if (scores.length === 0) {
-    body.innerHTML = '<div class="lb-empty">No runs yet - finish a fact to see your scores!</div>';
+    body.innerHTML = '<div class="lb-empty">No runs yet. Finish a fact to see your scores!</div>';
     return;
   }
   body.innerHTML = scores.slice(0, 5).map(function(s, i) {
@@ -196,7 +197,7 @@ function loadFact(fact) {
 
   input.value = '';
   input.disabled = false;
-  btn.textContent = 'Pause';
+  btn.innerHTML = '&#9646;&#9646;';
   btn.classList.remove('is-paused');
   btn.disabled = true;
   cover.classList.remove('visible');
@@ -243,6 +244,22 @@ document.getElementById('next-btn').addEventListener('click', function() {
 
 document.getElementById('retry-btn').addEventListener('click', function() {
   loadFact(currentFact);
+});
+
+/* tips modal */
+function openModal() {
+  document.getElementById('modal-backdrop').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-backdrop').classList.remove('open');
+}
+document.getElementById('tips-btn').addEventListener('click', openModal);
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-backdrop').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
 });
 
 /* init */
