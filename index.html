@@ -9,7 +9,7 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>Random Fun Facts<span class="dot">.</span></h1>
+    <h1>Random Fun Facts Typing Test<span class="dot">.</span></h1>
     <p>Type the fact: both as fast as you can, as correctly as you can.</p>
   </div>
 
@@ -48,8 +48,47 @@
   <div class="action-row">
     <button class="primary" id="next-btn">Next fact →</button>
     <button id="retry-btn">Retry</button>
-    <button class="pause-btn" id="pause-btn" disabled>Pause</button>
+    <button class="tips-btn" id="tips-btn">Tips &amp; Tricks</button>
+    <button class="pause-btn" id="pause-btn" disabled>&#9646;&#9646;</button>
     <span class="hint" id="hint-label"></span>
+  </div>
+
+  <!-- Tips modal -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal" id="tips-modal">
+      <div class="modal-header">
+        <span class="modal-title">Tips &amp; Tricks</span>
+        <button class="modal-close" id="modal-close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div class="tip-section">
+          <div class="tip-section-label">Speed</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Keep your eyes on the fact, not your fingers. Trust muscle memory.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Use all ten fingers. Reaching for keys with one hand slows you down significantly.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Keep your wrists slightly elevated above the desk to allow free finger movement.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Read two or three words ahead of where you are typing to keep momentum going.</div>
+        </div>
+        <div class="tip-section">
+          <div class="tip-section-label">Accuracy</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Slow down on punctuation and capital letters those are where most mistakes happen.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>It is faster to type slowly and correctly than to type fast and have to backspace constantly.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Focus on rhythm, not speed. A steady pace beats frantic bursts followed by corrections.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>If you keep mistyping the same letter, consciously slow down just for that keystroke.</div>
+        </div>
+        <div class="tip-section">
+          <div class="tip-section-label">Posture &amp; Setup</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Sit up straight with your feet flat on the floor. Slouching tightens your shoulders and slows your hands.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Position your keyboard so your elbows are at roughly a 90 degree angle.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Home row is your anchor. Your fingers should always return to A, S, D, F and J, K, L after each keystroke.</div>
+        </div>
+        <div class="tip-section">
+          <div class="tip-section-label">Practice</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Start on Easy until you hit 50 wpm consistently, then move up. Rushing levels builds bad habits.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Use Retry on facts you struggled with. Repeating a hard sentence trains your fingers on problem patterns.</div>
+          <div class="tip-item"><span class="tip-icon">&#9654;</span>Even 10 minutes of daily practice beats one hour once a week. Consistency is everything.</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="result-banner" id="result-banner">
@@ -59,7 +98,7 @@
 
   <div class="leaderboard">
     <div class="lb-title">Best runs this session</div>
-    <div id="lb-body"><div class="lb-empty">No runs yet - finish a fact to see your scores!</div></div>
+    <div id="lb-body"><div class="lb-empty">No runs yet. Finish a fun fact to see your scores!</div></div>
   </div>
 </div>
 
