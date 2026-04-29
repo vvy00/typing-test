@@ -1,11 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Random Fun Facts Typing Tracker</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="container">
+  <div class="header">
+    <h1>Random Fun Facts<span class="dot">.</span></h1>
+    <p>Type the fact: both as fast as you can, as correctly as you can.</p>
+  </div>
 
+  <div class="level-row">
+    <button class="level-btn active-easy" data-level="easy">Easy</button>
+    <button class="level-btn" data-level="medium">Medium</button>
+    <button class="level-btn" data-level="hard">Hard</button>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat">
+      <div class="stat-label">Speed</div>
+      <div class="stat-value" id="wpm-val">—<span class="stat-unit">wpm</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Accuracy</div>
+      <div class="stat-value" id="acc-val">—<span class="stat-unit">%</span></div>
+    </div>
+    <div class="stat" id="time-stat">
+      <div class="stat-label">Time</div>
+      <div class="stat-value" id="time-val">0<span class="stat-unit">s</span></div>
+    </div>
+  </div>
+
+  <div class="progress-bg"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+
+  <div class="fact-card" id="fact-card">
+    <div class="fact-category" id="fact-cat"></div>
+    <div class="fact-text" id="fact-display"></div>
+    <span class="diff-badge easy" id="diff-badge">Easy</span>
+    <div class="pause-cover" id="pause-cover">Paused</div>
+  </div>
+
+  <textarea id="typing-input" placeholder="Start typing the fact above..." spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+
+  <div class="action-row">
+    <button class="primary" id="next-btn">Next fact →</button>
+    <button id="retry-btn">Retry</button>
+    <button class="pause-btn" id="pause-btn" disabled>Pause</button>
+    <span class="hint" id="hint-label"></span>
+  </div>
+
+  <div class="result-banner" id="result-banner">
+    <div class="result-title" id="result-title"></div>
+    <div class="result-desc"  id="result-desc"></div>
+  </div>
+
+  <div class="leaderboard">
+    <div class="lb-title">Best runs this session</div>
+    <div id="lb-body"><div class="lb-empty">No runs yet - finish a fact to see your scores!</div></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
