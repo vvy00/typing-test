@@ -1,3 +1,2 @@
-## Typing Test Game
-
+## Random Fun Facts Typing Test
 # 
