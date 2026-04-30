@@ -491,7 +491,9 @@ button.tips-btn:hover {
 
 #focus-input {
   font-size: 15px;
-  height: 54px;
+  height: auto;
+  min-height: 54px;
+  overflow-y: hidden;
   background: var(--surface);
 }
 

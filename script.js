@@ -303,6 +303,8 @@ document.getElementById('typing-input').addEventListener('input', function(e) {
 });
 document.getElementById('focus-input').addEventListener('input', function(e) {
   handleInput(e.target.value, e.target);
+  e.target.style.height = 'auto';
+  e.target.style.height = e.target.scrollHeight + 'px';
 });
 
 /* ── next / retry ── */
