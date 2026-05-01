@@ -2,6 +2,8 @@
 
 This a random fun fact typing test game. It was built for letting users practice their speed, accuracy, and time. The UI is a mimimal. It was built using HTML, CSS, and JavaScript.
 
+<img width="1115" height="624" alt="image" src="https://github.com/user-attachments/assets/dac69a9d-0644-4f30-841b-fab7d17ea1a4" />
+
 ## Features
 - Live Typing Feedback (letters glow green/red)
 - Live WPM tracking
