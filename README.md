@@ -28,6 +28,3 @@ Controls:
 
 ## Future Improvements
 - Sound effects
-
-## AI Usage
-- Used ChatGPT for debugging and to clean up code
